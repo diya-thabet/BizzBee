@@ -1,0 +1,141 @@
+@startuml
+' Settings for better visualization
+skinparam style strictuml
+hide empty members
+
+package "Presentation Layer" {
+  ' UI/Views
+  class DashboardPanel
+  class ProductView
+  class SalesView
+  class ReportView
+}
+
+package "Business Logic Layer" {
+  ' Entities (Model)
+  class Product {
+    - id: String
+    - name: String
+    - quantity: int
+    - price: double
+  }
+
+  class Customer {
+    - id: String
+    - name: String
+    - email: String
+  }
+
+  class Sale {
+    - id: String
+    - customer: Customer
+    - items: List<LineItem>
+    - total: double
+    + calculateTotal()
+  }
+
+  class LineItem {
+    - product: Product
+    - quantity: int
+    - subtotal: double
+    + calculateSubtotal()
+  }
+
+  ' Managers and Patterns
+
+  ' InventoryManager (Singleton & Subject)
+  class InventoryManager << (S,#ADD1B2) Singleton >> {
+    - instance: InventoryManager {static}
+    - observers: List<Observer>
+    - InventoryManager() {private}
+    + getInstance(): InventoryManager {static}
+    + addProduct(p: Product)
+    + updateStock(p: Product, change: int)
+    + attach(o: Observer)
+    + notifyObservers(p: Product)
+  }
+
+  class SalesManager {
+    + createSale(c: Customer, items: List<LineItem>): Sale
+    + processSale(s: Sale)
+  }
+}
+
+package "Data Access Layer" {
+  ' Database Connection (Singleton)
+  class DatabaseConnection << (S,#ADD1B2) Singleton >> {
+    - instance: DatabaseConnection {static}
+    - connection: Connection
+    - DatabaseConnection() {private}
+    + getInstance(): DatabaseConnection {static}
+    + getConnection(): Connection
+  }
+
+  ' DAO Interfaces
+  interface ProductDAO {
+    + save(p: Product)
+    + get(id: String): Product
+    + getAll(): List<Product>
+  }
+
+  interface SaleDAO {
+    + save(s: Sale)
+    + get(id: String): Sale
+  }
+
+  ' DAO Implementations
+  class ProductDAOImpl
+  class SaleDAOImpl
+}
+
+package "Reporting Layer" {
+  ' Factory Pattern
+  interface Report << Interface >> {
+    + generate(): String
+  }
+
+  class ReportFactory << Factory >> {
+    + createReport(type: String, data: Object): Report {static}
+  }
+
+  class InvoiceReport
+  class StockSummaryReport
+}
+
+' --- RELATIONSHIPS ---
+
+' Model Relationships
+Sale "1" *-- "many" LineItem : contains
+Sale "1" --> "1" Customer : for
+LineItem "many" --> "1" Product : details
+
+' Observer Pattern (BLL -> Presentation)
+interface Observer << Interface >> {
+  + update(data: Object)
+}
+InventoryManager "1" o--> "many" Observer : notifies
+
+DashboardPanel .up.|> Observer
+InventoryManager ..> DashboardPanel : observes
+
+' DAO Pattern (BLL -> DAL)
+ProductDAOImpl .up.|> ProductDAO
+SaleDAOImpl .up.|> SaleDAO
+
+InventoryManager ..> ProductDAO : uses
+
+' Dependency Injection (DAL)
+ProductDAOImpl ..> DatabaseConnection
+SaleDAOImpl ..> DatabaseConnection
+
+' Factory Pattern
+ReportFactory ..> Report : creates
+InvoiceReport .up.|> Report
+StockSummaryReport .up.|> Report
+
+ReportView ..> ReportFactory : requests
+
+' Presentation Layer Interactions
+ProductView ..> InventoryManager : manages
+SalesView ..> SalesManager : handles
+@enduml
