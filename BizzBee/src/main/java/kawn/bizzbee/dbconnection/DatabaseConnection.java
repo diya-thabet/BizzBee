@@ -1,3 +1,5 @@
+package kawn.bizzbee.dbconnection;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -5,7 +7,7 @@ import java.sql.SQLException;
 public class DatabaseConnection {
     private static DatabaseConnection instance;
     private Connection connection;
-    private static final String URL = "jdbc:sqlite:merpy.db";
+    private static final String URL = "jdbc:sqlite:bee.db";
 
     private DatabaseConnection() {
         try {

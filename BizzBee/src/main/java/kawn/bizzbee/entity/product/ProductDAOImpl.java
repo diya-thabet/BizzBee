@@ -1,10 +1,9 @@
-package kawn.bizzbee.entity;
+package kawn.bizzbee.entity.product;
 
 // ProductDAOImpl.java
 import kawn.bizzbee.dbconnection.DatabaseConnection;
 
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ProductDAOImpl implements ProductDAO {

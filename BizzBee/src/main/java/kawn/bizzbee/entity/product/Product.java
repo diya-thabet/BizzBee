@@ -1,4 +1,4 @@
-package kawn.bizzbee.entity;
+package kawn.bizzbee.entity.product;
 // Product.java
 public class Product {
     private int id;

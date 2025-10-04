@@ -1,0 +1,69 @@
+-- Table to store product information (Product entity)
+CREATE TABLE IF NOT EXISTS products (
+    -- Primary Key: A unique identifier for the product
+    id TEXT PRIMARY KEY NOT NULL,
+    
+    -- Product name
+    name TEXT NOT NULL,
+    
+    -- Current stock quantity
+    quantity INTEGER NOT NULL,
+    
+    -- Selling price
+    price REAL NOT NULL
+);
+
+-- Table to store customer details (Customer entity)
+CREATE TABLE IF NOT EXISTS customers (
+    -- Primary Key: A unique identifier for the customer
+    id TEXT PRIMARY KEY NOT NULL,
+    
+    -- Customer name
+    name TEXT NOT NULL,
+    
+    -- Customer email, must be unique
+    email TEXT UNIQUE
+);
+
+-- Table to store sales orders (Sale entity)
+CREATE TABLE IF NOT EXISTS sales_orders (
+    -- Primary Key: A unique identifier for the sale
+    id TEXT PRIMARY KEY NOT NULL,
+    
+    -- Foreign Key: Links the sale to a customer
+    customer_id TEXT NOT NULL,
+    
+    -- Total price of the entire sale order
+    total REAL NOT NULL,
+    
+    -- Timestamp for when the order was created
+    sale_date TEXT NOT NULL DEFAULT (datetime('now','localtime')),
+    
+    -- Foreign Key constraint
+    FOREIGN KEY (customer_id) REFERENCES customers(id)
+);
+
+-- Table to store items within a sales order (LineItem entity)
+CREATE TABLE IF NOT EXISTS sale_items (
+    -- Surrogate Key: An auto-incrementing primary key for each line item
+    item_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    
+    -- Foreign Key: Links the line item back to its sales order (Sale)
+    sale_id TEXT NOT NULL,
+    
+    -- Foreign Key: Links the line item to the product purchased
+    product_id TEXT NOT NULL,
+    
+    -- Quantity of the product in this line item
+    quantity INTEGER NOT NULL,
+    
+    -- Price per unit at the time of sale (to handle price changes)
+    unit_price REAL NOT NULL,
+    
+    -- Calculated subtotal for this line item (quantity * unit_price)
+    subtotal REAL NOT NULL,
+    
+    -- Foreign Key constraints
+    FOREIGN KEY (sale_id) REFERENCES sales_orders(id),
+    FOREIGN KEY (product_id) REFERENCES products(id)
+);

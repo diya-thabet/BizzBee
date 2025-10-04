@@ -1,4 +1,4 @@
-package kawn.bizzbee.entity;
+package kawn.bizzbee.entity.product;
 
 import java.util.List;
 
